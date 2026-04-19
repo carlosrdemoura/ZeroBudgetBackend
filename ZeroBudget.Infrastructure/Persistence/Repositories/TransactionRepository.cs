@@ -73,6 +73,12 @@ public class TransactionRepository(AppDbContext context) : ITransactionRepositor
             .SumAsync(t => t.Amount, cancellationToken);
     }
 
+    public async Task<decimal> GetTotalIncomeAsync(
+        Guid inflowCategoryId, CancellationToken cancellationToken = default)
+        => await context.Transactions
+            .Where(t => t.CategoryId == inflowCategoryId && t.AffectsBudget)
+            .SumAsync(t => t.Amount, cancellationToken);
+
     public async Task<Dictionary<Guid, decimal>> GetActivityForMonthAsync(
         YearMonth month, Guid inflowCategoryId, CancellationToken cancellationToken = default)
     {

@@ -1,5 +1,6 @@
 using MediatR;
 using ZeroBudget.Application.Interfaces;
+using ZeroBudget.Domain;
 
 namespace ZeroBudget.Application.Features.Accounts.GetAccountsSummary;
 
@@ -13,8 +14,9 @@ public class GetAccountsSummaryQueryHandler(
         var totalBalance = balances.Values.Sum();
 
         var totalAssigned = await budgetEntryRepository.GetTotalAllTimeBudgetAssignedAsync(cancellationToken);
+        var totalIncome = await transactionRepository.GetTotalIncomeAsync(WellKnownIds.InflowCategoryId, cancellationToken);
 
-        var readyToAssign = totalBalance - totalAssigned;
+        var readyToAssign = totalIncome - totalAssigned;
 
         return new GetAccountsSummaryQueryOutput(totalBalance, totalAssigned, readyToAssign);
     }

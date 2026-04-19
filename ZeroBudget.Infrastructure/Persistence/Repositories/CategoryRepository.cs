@@ -58,9 +58,13 @@ public class CategoryRepository(AppDbContext context) : ICategoryRepository
 
     public void DeleteGroup(CategoryGroup group) => context.CategoryGroups.Remove(group);
 
-    public async Task<Category?> FindByNameAsync(string name, CancellationToken cancellationToken = default)
-        => await context.Categories
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+    public async Task<Category?> FindByNameAsync(string name, Guid? groupId = null, CancellationToken cancellationToken = default)
+    {
+        var query = context.Categories.Where(c => c.Name.ToLower() == name.ToLower());
+        if (groupId.HasValue)
+            query = query.Where(c => c.GroupId == groupId.Value);
+        return await query.FirstOrDefaultAsync(cancellationToken);
+    }
 
     public async Task<CategoryGroup?> GetFirstUserGroupAsync(CancellationToken cancellationToken = default)
         => await context.CategoryGroups

@@ -25,20 +25,18 @@ public class MoveMoneyCommandHandler(
         await unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var fromEntry = await budgetEntries.GetAsync(fromCategoryId, month, cancellationToken);
-            var fromAssigned = fromEntry?.Assigned ?? 0;
 
             if (fromEntry is null)
-                await budgetEntries.AddAsync(BudgetEntry.Create(fromCategoryId, month, 0), cancellationToken);
+                await budgetEntries.AddAsync(BudgetEntry.Create(fromCategoryId, month, -amount), cancellationToken);
             else
-                fromEntry.UpdateAssigned(fromAssigned - amount);
+                fromEntry.UpdateAssigned(fromEntry.Assigned - amount);
 
             var toEntry = await budgetEntries.GetAsync(toCategoryId, month, cancellationToken);
-            var toAssigned = toEntry?.Assigned ?? 0;
 
             if (toEntry is null)
                 await budgetEntries.AddAsync(BudgetEntry.Create(toCategoryId, month, amount), cancellationToken);
             else
-                toEntry.UpdateAssigned(toAssigned + amount);
+                toEntry.UpdateAssigned(toEntry.Assigned + amount);
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }, cancellationToken);

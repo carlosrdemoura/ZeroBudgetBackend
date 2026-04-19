@@ -19,6 +19,7 @@ public interface ITransactionRepository
 
     Task<decimal> GetMonthlyIncomeAsync(YearMonth month, Guid inflowCategoryId, CancellationToken cancellationToken = default);
     Task<decimal> GetCumulativeIncomeAsync(YearMonth upToMonth, Guid inflowCategoryId, CancellationToken cancellationToken = default);
+    Task<decimal> GetTotalIncomeAsync(Guid inflowCategoryId, CancellationToken cancellationToken = default);
     Task<Dictionary<Guid, decimal>> GetActivityForMonthAsync(YearMonth month, Guid inflowCategoryId, CancellationToken cancellationToken = default);
     Task<Dictionary<Guid, decimal>> GetCumulativeActivityPerCategoryAsync(YearMonth upToMonth, Guid inflowCategoryId, CancellationToken cancellationToken = default);
     Task AddAsync(Transaction transaction, CancellationToken cancellationToken = default);

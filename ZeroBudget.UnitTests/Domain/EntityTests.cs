@@ -19,18 +19,18 @@ public class EntityTests
     // ── BudgetEntry ───────────────────────────────────────────────────────────
 
     [Fact]
-    public void BudgetEntry_Create_NegativeAssigned_Throws()
+    public void BudgetEntry_Create_NegativeAssigned_Succeeds()
     {
-        var act = () => BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), -1m);
-        act.Should().Throw<ArgumentOutOfRangeException>();
+        var entry = BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), -50m);
+        entry.Assigned.Should().Be(-50m);
     }
 
     [Fact]
-    public void BudgetEntry_UpdateAssigned_NegativeAmount_Throws()
+    public void BudgetEntry_UpdateAssigned_NegativeAmount_Succeeds()
     {
         var entry = BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), 100m);
-        var act = () => entry.UpdateAssigned(-1m);
-        act.Should().Throw<ArgumentOutOfRangeException>();
+        entry.UpdateAssigned(-25m);
+        entry.Assigned.Should().Be(-25m);
     }
 
     [Fact]

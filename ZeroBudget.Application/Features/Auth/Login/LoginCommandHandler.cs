@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using MediatR;
 using ZeroBudget.Application.Interfaces;
 using ZeroBudget.Domain.Exceptions;
@@ -11,7 +13,11 @@ public class LoginCommandHandler(
     public Task<LoginCommandOutput> Handle(LoginCommandInput command, CancellationToken cancellationToken)
     {
         var emailMatch = command.Email.Equals(authSettings.Email, StringComparison.OrdinalIgnoreCase);
-        if (!emailMatch || command.Password != authSettings.Password)
+        var provided = Encoding.UTF8.GetBytes(command.Password);
+        var expected = Encoding.UTF8.GetBytes(authSettings.Password);
+        var passwordMatch = CryptographicOperations.FixedTimeEquals(provided, expected);
+
+        if (!emailMatch || !passwordMatch)
             throw new UnauthorizedException();
 
         var (token, expiresAt) = jwtTokenService.Generate(authSettings.Email);

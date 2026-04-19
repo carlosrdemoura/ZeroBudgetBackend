@@ -13,7 +13,7 @@ public interface ICategoryRepository
     Task<List<CategoryGroup>> GetGroupsByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
     Task<List<Category>> GetCategoriesByIdsAsync(IEnumerable<Guid> ids, CancellationToken cancellationToken = default);
     Task DeleteAsync(Category category, CancellationToken cancellationToken = default);
-    Task<Category?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<Category?> FindByNameAsync(string name, Guid? groupId = null, CancellationToken cancellationToken = default);
     Task<CategoryGroup?> GetFirstUserGroupAsync(CancellationToken cancellationToken = default);
     void DeleteGroup(CategoryGroup group);
     Task<bool> AnyHasTransactionsAsync(IEnumerable<Guid> categoryIds, CancellationToken cancellationToken = default);

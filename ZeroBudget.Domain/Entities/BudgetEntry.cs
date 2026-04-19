@@ -15,24 +15,13 @@ public class BudgetEntry
     private BudgetEntry() { }
 
     public static BudgetEntry Create(Guid categoryId, YearMonth month, decimal assigned = 0)
-    {
-        if (assigned < 0)
-            throw new ArgumentOutOfRangeException(nameof(assigned), "Assigned amount cannot be negative.");
-
-        return new BudgetEntry
+        => new()
         {
             Id = Guid.NewGuid(),
             CategoryId = categoryId,
             Month = month,
             Assigned = assigned
         };
-    }
 
-    public void UpdateAssigned(decimal amount)
-    {
-        if (amount < 0)
-            throw new ArgumentOutOfRangeException(nameof(amount), "Assigned amount cannot be negative.");
-
-        Assigned = amount;
-    }
+    public void UpdateAssigned(decimal amount) => Assigned = amount;
 }

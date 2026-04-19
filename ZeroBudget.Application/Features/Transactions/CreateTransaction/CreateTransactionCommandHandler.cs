@@ -30,7 +30,7 @@ public class CreateTransactionCommandHandler(
         }
         else if (command.CategoryName is not null)
         {
-            var existing = await categoryRepository.FindByNameAsync(command.CategoryName, cancellationToken);
+            var existing = await categoryRepository.FindByNameAsync(command.CategoryName, command.CategoryGroupId, cancellationToken);
             if (existing is not null)
             {
                 resolvedCategoryId = existing.Id;

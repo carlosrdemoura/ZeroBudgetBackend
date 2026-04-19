@@ -15,7 +15,8 @@ public class DeleteAccountCommandHandler(
         if (account is null)
             throw new NotFoundException("Account", command.AccountId);
 
-        if (await accountRepository.HasExpenseTransactionsAsync(command.AccountId, cancellationToken))
+        var balances = await transactionRepository.GetAccountBalancesAsync(cancellationToken);
+        if (balances.GetValueOrDefault(command.AccountId) != 0m)
             throw new AccountHasTransactionsException();
 
         await transactionRepository.DeleteByAccountAsync(command.AccountId, cancellationToken);
