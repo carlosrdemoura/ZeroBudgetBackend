@@ -32,6 +32,8 @@ services:
       Jwt__Issuer: ZeroBudget
       Jwt__Audience: ZeroBudget
       Jwt__ExpirationDays: "7"
+      Auth__Email: ${AUTH_EMAIL}
+      Auth__Password: ${AUTH_PASSWORD}
       CorsAllowedDomains: zerobudget.carlosmoura.net
     ports:
       - "127.0.0.1:8080:8080"
