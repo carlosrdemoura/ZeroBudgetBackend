@@ -33,19 +33,11 @@ services:
       Jwt__Audience: ZeroBudget
       Jwt__ExpirationDays: "7"
       CorsAllowedDomains: zerobudget.carlosmoura.net
+    ports:
+      - "127.0.0.1:8080:8080"
     depends_on:
       database:
         condition: service_healthy
-    networks:
-      - zerobudget-network
-
-  cloudflared:
-    container_name: zerobudget-cloudflared
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
-    depends_on:
-      - zerobudget-api
     networks:
       - zerobudget-network
 
