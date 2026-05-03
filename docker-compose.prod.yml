@@ -19,7 +19,6 @@ services:
 
   zerobudget-api:
     container_name: zerobudget-api
-    image: ${DOCKER_REGISTRY-}zerobudgetapi
     restart: unless-stopped
     build:
       context: .
