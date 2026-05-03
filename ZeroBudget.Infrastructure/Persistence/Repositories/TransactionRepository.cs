@@ -31,9 +31,9 @@ public class TransactionRepository(AppDbContext context) : ITransactionRepositor
         {
             var pattern = $"%{search}%";
             query = query.Where(t =>
-                EF.Functions.ILike(t.Memo ?? "", pattern) ||
-                (t.Category != null && EF.Functions.ILike(t.Category.Name, pattern)) ||
-                (t.Category != null && EF.Functions.ILike(t.Category.Group.Name, pattern)));
+                EF.Functions.ILike(EF.Functions.Unaccent(t.Memo ?? ""), EF.Functions.Unaccent(pattern)) ||
+                (t.Category != null && EF.Functions.ILike(EF.Functions.Unaccent(t.Category.Name), EF.Functions.Unaccent(pattern))) ||
+                (t.Category != null && EF.Functions.ILike(EF.Functions.Unaccent(t.Category.Group.Name), EF.Functions.Unaccent(pattern))));
         }
 
         query = query.OrderByDescending(t => t.Date).ThenByDescending(t => t.CreatedAt);
