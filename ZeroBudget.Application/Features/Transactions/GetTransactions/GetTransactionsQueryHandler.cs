@@ -24,6 +24,7 @@ public class GetTransactionsQueryHandler(
             t.Date,
             t.Description,
             t.IsConsolidated,
+            t.Position,
             t.CreatedAt)).ToList();
 
         return new GetTransactionsQueryOutput(new PagedResult<TransactionDTO>(items, paged.TotalCount, paged.Page, paged.PageSize));

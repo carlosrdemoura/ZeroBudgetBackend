@@ -24,6 +24,7 @@ public class UpdateTransactionCommandHandler(
             transaction.Date,
             transaction.Description,
             transaction.IsConsolidated,
+            transaction.Position,
             transaction.CreatedAt));
     }
 }

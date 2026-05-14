@@ -33,7 +33,7 @@ public class TransactionRepository(AppDbContext context) : ITransactionRepositor
                 EF.Functions.ILike(EF.Functions.Unaccent(t.Description ?? ""), EF.Functions.Unaccent(pattern)));
         }
 
-        query = query.OrderByDescending(t => t.Date).ThenByDescending(t => t.CreatedAt);
+        query = query.OrderBy(t => t.Position).ThenBy(t => t.CreatedAt);
 
         var totalCount = await query.CountAsync(cancellationToken);
         var items = await query
@@ -52,4 +52,9 @@ public class TransactionRepository(AppDbContext context) : ITransactionRepositor
         context.Transactions.Remove(transaction);
         return Task.CompletedTask;
     }
+
+    public async Task<double?> GetMaxPositionAsync(CancellationToken cancellationToken = default)
+        => await context.Transactions
+            .Select(t => (double?)t.Position)
+            .MaxAsync(cancellationToken);
 }

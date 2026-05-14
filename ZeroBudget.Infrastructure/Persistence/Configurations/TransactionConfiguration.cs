@@ -33,11 +33,16 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
             .HasDefaultValue(false)
             .IsRequired();
 
+        builder.Property(t => t.Position)
+            .HasColumnName("position")
+            .HasColumnType("double precision")
+            .IsRequired();
+
         builder.Property(t => t.CreatedAt)
             .HasColumnName("created_at")
             .HasColumnType("timestamptz")
             .IsRequired();
 
-        builder.HasIndex(t => t.Date);
+        builder.HasIndex(t => new { t.Date, t.Position });
     }
 }

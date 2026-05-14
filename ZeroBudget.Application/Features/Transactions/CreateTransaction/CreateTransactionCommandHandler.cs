@@ -9,9 +9,22 @@ public class CreateTransactionCommandHandler(
     ITransactionRepository transactionRepository,
     IUnitOfWork unitOfWork) : IRequestHandler<CreateTransactionCommandInput, CreateTransactionCommandOutput>
 {
+    private const double PositionStep = 1024.0;
+
     public async Task<CreateTransactionCommandOutput> Handle(CreateTransactionCommandInput command, CancellationToken cancellationToken)
     {
-        var transaction = Transaction.Create(command.Amount, command.Date, command.Description, command.IsConsolidated);
+        double position;
+        if (command.Position.HasValue)
+        {
+            position = command.Position.Value;
+        }
+        else
+        {
+            var maxPosition = await transactionRepository.GetMaxPositionAsync(cancellationToken);
+            position = (maxPosition ?? 0.0) + PositionStep;
+        }
+
+        var transaction = Transaction.Create(command.Amount, command.Date, command.Description, command.IsConsolidated, position);
 
         await transactionRepository.AddAsync(transaction, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -22,6 +35,7 @@ public class CreateTransactionCommandHandler(
             transaction.Date,
             transaction.Description,
             transaction.IsConsolidated,
+            transaction.Position,
             transaction.CreatedAt));
     }
 }

@@ -5,6 +5,7 @@ using ZeroBudget.Application.Features.Transactions.CreateTransaction;
 using ZeroBudget.Application.Features.Transactions.DeleteTransaction;
 using ZeroBudget.Application.Features.Transactions.GetTransactions;
 using ZeroBudget.Application.Features.Transactions.UpdateTransaction;
+using ZeroBudget.Application.Features.Transactions.UpdateTransactionPosition;
 
 namespace ZeroBudget.Api.Controllers;
 
@@ -41,7 +42,8 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
                 request.Amount,
                 request.Date,
                 request.Description,
-                request.IsConsolidated),
+                request.IsConsolidated,
+                request.Position),
             ct);
         return CreatedAtAction(nameof(GetAll), new { year = result.Transaction.Date.Year, month = result.Transaction.Date.Month }, result);
     }
@@ -79,6 +81,19 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
         return Ok(result);
     }
 
+    [HttpPatch("{id:guid}/position")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePosition(
+        Guid id,
+        [FromBody] UpdateTransactionPositionRequest request,
+        CancellationToken ct)
+    {
+        await mediator.Send(new UpdateTransactionPositionCommandInput(id, request.Position), ct);
+        return NoContent();
+    }
+
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -95,6 +110,7 @@ public class CreateTransactionRequest
     public DateOnly Date { get; set; }
     public string? Description { get; set; }
     public bool IsConsolidated { get; set; }
+    public double? Position { get; set; }
 }
 
 public class UpdateTransactionRequest
@@ -108,4 +124,9 @@ public class UpdateTransactionRequest
 public class ConsolidateTransactionRequest
 {
     public bool IsConsolidated { get; set; }
+}
+
+public class UpdateTransactionPositionRequest
+{
+    public double Position { get; set; }
 }

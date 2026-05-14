@@ -8,6 +8,7 @@ public class TransactionDTO
         DateOnly date,
         string? description,
         bool isConsolidated,
+        double position,
         DateTime createdAt)
     {
         Id = id;
@@ -15,6 +16,7 @@ public class TransactionDTO
         Date = date;
         Description = description;
         IsConsolidated = isConsolidated;
+        Position = position;
         CreatedAt = createdAt;
     }
 
@@ -23,5 +25,6 @@ public class TransactionDTO
     public DateOnly Date { get; }
     public string? Description { get; }
     public bool IsConsolidated { get; }
+    public double Position { get; }
     public DateTime CreatedAt { get; }
 }

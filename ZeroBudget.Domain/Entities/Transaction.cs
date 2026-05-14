@@ -7,14 +7,17 @@ public class Transaction
     public DateOnly Date { get; private set; }
     public string? Description { get; private set; }
     public bool IsConsolidated { get; private set; }
+    public double Position { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     private Transaction() { }
 
-    public static Transaction Create(decimal amount, DateOnly date, string? description, bool isConsolidated)
+    public static Transaction Create(decimal amount, DateOnly date, string? description, bool isConsolidated, double position)
     {
         if (amount == 0)
             throw new ArgumentException("Amount cannot be zero.", nameof(amount));
+        if (double.IsNaN(position) || double.IsInfinity(position))
+            throw new ArgumentException("Position must be a finite number.", nameof(position));
 
         return new Transaction
         {
@@ -23,6 +26,7 @@ public class Transaction
             Date = date,
             Description = description?.Trim(),
             IsConsolidated = isConsolidated,
+            Position = position,
             CreatedAt = DateTime.UtcNow
         };
     }
@@ -41,5 +45,13 @@ public class Transaction
     public void SetConsolidated(bool isConsolidated)
     {
         IsConsolidated = isConsolidated;
+    }
+
+    public void SetPosition(double position)
+    {
+        if (double.IsNaN(position) || double.IsInfinity(position))
+            throw new ArgumentException("Position must be a finite number.", nameof(position));
+
+        Position = position;
     }
 }

@@ -17,4 +17,6 @@ public interface ITransactionRepository
 
     Task AddAsync(Transaction transaction, CancellationToken cancellationToken = default);
     Task DeleteAsync(Transaction transaction, CancellationToken cancellationToken = default);
+
+    Task<double?> GetMaxPositionAsync(CancellationToken cancellationToken = default);
 }
