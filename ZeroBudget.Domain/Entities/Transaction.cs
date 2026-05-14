@@ -14,8 +14,6 @@ public class Transaction
 
     public static Transaction Create(decimal amount, DateOnly date, string? description, bool isConsolidated, double position, Guid? id = null)
     {
-        if (amount == 0)
-            throw new ArgumentException("Amount cannot be zero.", nameof(amount));
         if (double.IsNaN(position) || double.IsInfinity(position))
             throw new ArgumentException("Position must be a finite number.", nameof(position));
         if (id.HasValue && id.Value == Guid.Empty)
@@ -35,9 +33,6 @@ public class Transaction
 
     public void Update(decimal amount, DateOnly date, string? description, bool isConsolidated)
     {
-        if (amount == 0)
-            throw new ArgumentException("Amount cannot be zero.", nameof(amount));
-
         Amount = amount;
         Date = date;
         Description = description?.Trim();

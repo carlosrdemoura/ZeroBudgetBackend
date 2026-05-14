@@ -27,7 +27,6 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
 {
     public CreateTransactionCommandValidator()
     {
-        RuleFor(x => x.Amount).NotEqual(0).WithMessage("Amount cannot be zero.");
         RuleFor(x => x.Date).NotEmpty();
         RuleFor(x => x.Description).MaximumLength(500).When(x => x.Description is not null);
         RuleFor(x => x.Position!.Value)

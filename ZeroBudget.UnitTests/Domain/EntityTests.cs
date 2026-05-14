@@ -6,18 +6,19 @@ namespace ZeroBudget.UnitTests.Domain;
 public class EntityTests
 {
     private static readonly DateOnly Today = DateOnly.FromDateTime(DateTime.Today);
+    private const double Position = 1024.0;
 
     [Fact]
-    public void Transaction_Create_ZeroAmount_Throws()
+    public void Transaction_Create_ZeroAmount_Succeeds()
     {
-        var act = () => Transaction.Create(0m, Today, null, false);
-        act.Should().Throw<ArgumentException>();
+        var t = Transaction.Create(0m, Today, null, false, Position);
+        t.Amount.Should().Be(0m);
     }
 
     [Fact]
     public void Transaction_Create_NegativeAmount_Succeeds()
     {
-        var t = Transaction.Create(-50m, Today, "Rent", false);
+        var t = Transaction.Create(-50m, Today, "Rent", false, Position);
         t.Amount.Should().Be(-50m);
         t.Description.Should().Be("Rent");
         t.IsConsolidated.Should().BeFalse();
@@ -26,7 +27,7 @@ public class EntityTests
     [Fact]
     public void Transaction_Create_PositiveAmount_Succeeds()
     {
-        var t = Transaction.Create(1000m, Today, "Salary", true);
+        var t = Transaction.Create(1000m, Today, "Salary", true, Position);
         t.Amount.Should().Be(1000m);
         t.IsConsolidated.Should().BeTrue();
     }
@@ -34,14 +35,14 @@ public class EntityTests
     [Fact]
     public void Transaction_Create_TrimsDescription()
     {
-        var t = Transaction.Create(10m, Today, "  Coffee  ", false);
+        var t = Transaction.Create(10m, Today, "  Coffee  ", false, Position);
         t.Description.Should().Be("Coffee");
     }
 
     [Fact]
     public void Transaction_Update_ChangesAllFields()
     {
-        var t = Transaction.Create(10m, Today, "Old", false);
+        var t = Transaction.Create(10m, Today, "Old", false, Position);
         var newDate = Today.AddDays(1);
 
         t.Update(-25m, newDate, "New", true);
@@ -53,17 +54,17 @@ public class EntityTests
     }
 
     [Fact]
-    public void Transaction_Update_ZeroAmount_Throws()
+    public void Transaction_Update_ZeroAmount_Succeeds()
     {
-        var t = Transaction.Create(10m, Today, null, false);
-        var act = () => t.Update(0m, Today, null, false);
-        act.Should().Throw<ArgumentException>();
+        var t = Transaction.Create(10m, Today, null, false, Position);
+        t.Update(0m, Today, null, false);
+        t.Amount.Should().Be(0m);
     }
 
     [Fact]
     public void Transaction_SetConsolidated_TogglesFlag()
     {
-        var t = Transaction.Create(10m, Today, null, false);
+        var t = Transaction.Create(10m, Today, null, false, Position);
         t.SetConsolidated(true);
         t.IsConsolidated.Should().BeTrue();
         t.SetConsolidated(false);
