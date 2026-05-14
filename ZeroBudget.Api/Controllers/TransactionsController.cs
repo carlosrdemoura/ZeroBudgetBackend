@@ -1,7 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ZeroBudget.Application.Common;
-using ZeroBudget.Application.DTOs;
+using ZeroBudget.Application.Features.Transactions.ConsolidateTransaction;
 using ZeroBudget.Application.Features.Transactions.CreateTransaction;
 using ZeroBudget.Application.Features.Transactions.DeleteTransaction;
 using ZeroBudget.Application.Features.Transactions.GetTransactions;
@@ -16,50 +15,40 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
     [ProducesResponseType(typeof(GetTransactionsQueryOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAll(
-        [FromQuery] Guid? accountId,
-        [FromQuery] DateOnly? fromDate,
-        [FromQuery] DateOnly? toDate,
+        [FromQuery] int? year,
+        [FromQuery] int? month,
         [FromQuery] string? search,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 50,
         CancellationToken ct = default)
     {
-        if (accountId is null)
-            return BadRequest("accountId is required.");
-
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var from = fromDate ?? new DateOnly(today.Year, today.Month, 1);
-        var to = toDate ?? new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
+        var resolvedYear = year ?? today.Year;
+        var resolvedMonth = month ?? today.Month;
 
         var result = await mediator.Send(
-            new GetTransactionsQueryInput(accountId.Value, from, to, search, page, pageSize), ct);
+            new GetTransactionsQueryInput(resolvedYear, resolvedMonth, search, page, pageSize), ct);
         return Ok(result);
     }
 
     [HttpPost]
     [ProducesResponseType(typeof(CreateTransactionCommandOutput), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Create([FromBody] CreateTransactionRequest request, CancellationToken ct)
     {
         var result = await mediator.Send(
             new CreateTransactionCommandInput(
-                request.AccountId,
                 request.Amount,
                 request.Date,
-                request.CategoryId,
-                request.CategoryName,
-                request.CategoryGroupId,
-                request.Memo,
-                request.AffectsBudget),
+                request.Description,
+                request.IsConsolidated),
             ct);
-        return CreatedAtAction(nameof(GetAll), new { accountId = result.Transaction.AccountId }, result);
+        return CreatedAtAction(nameof(GetAll), new { year = result.Transaction.Date.Year, month = result.Transaction.Date.Month }, result);
     }
 
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(UpdateTransactionCommandOutput), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(
         Guid id,
@@ -71,16 +60,27 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
                 id,
                 request.Amount,
                 request.Date,
-                request.CategoryId,
-                request.Memo,
-                request.AffectsBudget),
+                request.Description,
+                request.IsConsolidated),
             ct);
+        return Ok(result);
+    }
+
+    [HttpPatch("{id:guid}/consolidate")]
+    [ProducesResponseType(typeof(ConsolidateTransactionCommandOutput), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Consolidate(
+        Guid id,
+        [FromBody] ConsolidateTransactionRequest request,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(
+            new ConsolidateTransactionCommandInput(id, request.IsConsolidated), ct);
         return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
@@ -91,21 +91,21 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
 
 public class CreateTransactionRequest
 {
-    public Guid AccountId { get; set; }
     public decimal Amount { get; set; }
     public DateOnly Date { get; set; }
-    public Guid? CategoryId { get; set; }
-    public string? CategoryName { get; set; }
-    public Guid? CategoryGroupId { get; set; }
-    public string? Memo { get; set; }
-    public bool AffectsBudget { get; set; } = true;
+    public string? Description { get; set; }
+    public bool IsConsolidated { get; set; }
 }
 
 public class UpdateTransactionRequest
 {
     public decimal Amount { get; set; }
     public DateOnly Date { get; set; }
-    public Guid? CategoryId { get; set; }
-    public string? Memo { get; set; }
-    public bool AffectsBudget { get; set; } = true;
+    public string? Description { get; set; }
+    public bool IsConsolidated { get; set; }
+}
+
+public class ConsolidateTransactionRequest
+{
+    public bool IsConsolidated { get; set; }
 }

@@ -1,94 +1,72 @@
 using FluentAssertions;
 using ZeroBudget.Domain.Entities;
-using ZeroBudget.Domain.ValueObjects;
 
 namespace ZeroBudget.UnitTests.Domain;
 
 public class EntityTests
 {
-    // ── Category ─────────────────────────────────────────────────────────────
-
-    [Fact]
-    public void Category_Rename_TrimsWhitespace()
-    {
-        var cat = Category.Create(Guid.NewGuid(), "Food");
-        cat.Rename("  Groceries  ");
-        cat.Name.Should().Be("Groceries");
-    }
-
-    // ── BudgetEntry ───────────────────────────────────────────────────────────
-
-    [Fact]
-    public void BudgetEntry_Create_NegativeAssigned_Succeeds()
-    {
-        var entry = BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), -50m);
-        entry.Assigned.Should().Be(-50m);
-    }
-
-    [Fact]
-    public void BudgetEntry_UpdateAssigned_NegativeAmount_Succeeds()
-    {
-        var entry = BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), 100m);
-        entry.UpdateAssigned(-25m);
-        entry.Assigned.Should().Be(-25m);
-    }
-
-    [Fact]
-    public void BudgetEntry_UpdateAssigned_ValidAmount_UpdatesValue()
-    {
-        var entry = BudgetEntry.Create(Guid.NewGuid(), new YearMonth(2025, 1), 100m);
-        entry.UpdateAssigned(250m);
-        entry.Assigned.Should().Be(250m);
-    }
-
-    // ── Transaction ───────────────────────────────────────────────────────────
-
-    private static readonly Guid AccountId = Guid.NewGuid();
     private static readonly DateOnly Today = DateOnly.FromDateTime(DateTime.Today);
 
     [Fact]
     public void Transaction_Create_ZeroAmount_Throws()
     {
-        var act = () => Transaction.Create(AccountId, 0m, Today, null);
+        var act = () => Transaction.Create(0m, Today, null, false);
         act.Should().Throw<ArgumentException>();
     }
 
     [Fact]
-    public void Transaction_Create_NegativeAmount_NoCategory_Succeeds()
+    public void Transaction_Create_NegativeAmount_Succeeds()
     {
-        var t = Transaction.Create(AccountId, -50m, Today, null);
+        var t = Transaction.Create(-50m, Today, "Rent", false);
         t.Amount.Should().Be(-50m);
-        t.CategoryId.Should().BeNull();
+        t.Description.Should().Be("Rent");
+        t.IsConsolidated.Should().BeFalse();
     }
 
     [Fact]
-    public void Transaction_Create_NegativeAmount_WithCategory_Succeeds()
+    public void Transaction_Create_PositiveAmount_Succeeds()
     {
-        var categoryId = Guid.NewGuid();
-        var t = Transaction.Create(AccountId, -50m, Today, categoryId);
-        t.Amount.Should().Be(-50m);
-        t.CategoryId.Should().Be(categoryId);
-    }
-
-    [Fact]
-    public void Transaction_Create_PositiveAmount_NoCategory_Succeeds()
-    {
-        var t = Transaction.Create(AccountId, 1000m, Today, null);
+        var t = Transaction.Create(1000m, Today, "Salary", true);
         t.Amount.Should().Be(1000m);
-        t.CategoryId.Should().BeNull();
+        t.IsConsolidated.Should().BeTrue();
     }
 
     [Fact]
-    public void Transaction_Create_DefaultAffectsBudget_IsTrue()
+    public void Transaction_Create_TrimsDescription()
     {
-        var t = Transaction.Create(AccountId, 100m, Today, null);
-        t.AffectsBudget.Should().BeTrue();
+        var t = Transaction.Create(10m, Today, "  Coffee  ", false);
+        t.Description.Should().Be("Coffee");
     }
 
     [Fact]
-    public void Transaction_Create_AffectsBudgetFalse_IsFalse()
+    public void Transaction_Update_ChangesAllFields()
     {
-        var t = Transaction.Create(AccountId, 100m, Today, null, memo: null, affectsBudget: false);
-        t.AffectsBudget.Should().BeFalse();
+        var t = Transaction.Create(10m, Today, "Old", false);
+        var newDate = Today.AddDays(1);
+
+        t.Update(-25m, newDate, "New", true);
+
+        t.Amount.Should().Be(-25m);
+        t.Date.Should().Be(newDate);
+        t.Description.Should().Be("New");
+        t.IsConsolidated.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Transaction_Update_ZeroAmount_Throws()
+    {
+        var t = Transaction.Create(10m, Today, null, false);
+        var act = () => t.Update(0m, Today, null, false);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void Transaction_SetConsolidated_TogglesFlag()
+    {
+        var t = Transaction.Create(10m, Today, null, false);
+        t.SetConsolidated(true);
+        t.IsConsolidated.Should().BeTrue();
+        t.SetConsolidated(false);
+        t.IsConsolidated.Should().BeFalse();
     }
 }

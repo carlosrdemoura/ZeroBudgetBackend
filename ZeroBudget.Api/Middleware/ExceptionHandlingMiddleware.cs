@@ -31,14 +31,6 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         {
             await WriteProblemAsync(context, StatusCodes.Status404NotFound, ex.Message);
         }
-        catch (InsufficientFundsException ex)
-        {
-            await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity, ex.Message);
-        }
-        catch (AccountHasTransactionsException ex)
-        {
-            await WriteProblemAsync(context, StatusCodes.Status422UnprocessableEntity, ex.Message);
-        }
         catch (DomainException ex)
         {
             await WriteProblemAsync(context, StatusCodes.Status400BadRequest, ex.Message);

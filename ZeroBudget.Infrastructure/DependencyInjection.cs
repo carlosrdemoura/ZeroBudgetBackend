@@ -24,9 +24,6 @@ public static class DependencyInjection
                 npgsql => npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
         // ── Repositories ──────────────────────────────────────────────────────
-        services.AddScoped<IAccountRepository, AccountRepository>();
-        services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<IBudgetEntryRepository, BudgetEntryRepository>();
         services.AddScoped<ITransactionRepository, TransactionRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 

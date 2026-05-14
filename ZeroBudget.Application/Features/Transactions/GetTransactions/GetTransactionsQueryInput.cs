@@ -5,24 +5,21 @@ namespace ZeroBudget.Application.Features.Transactions.GetTransactions;
 public class GetTransactionsQueryInput : IRequest<GetTransactionsQueryOutput>
 {
     public GetTransactionsQueryInput(
-        Guid accountId,
-        DateOnly fromDate,
-        DateOnly toDate,
+        int year,
+        int month,
         string? search = null,
         int page = 1,
         int pageSize = 50)
     {
-        AccountId = accountId;
-        FromDate = fromDate;
-        ToDate = toDate;
+        Year = year;
+        Month = month;
         Search = search;
         Page = page;
         PageSize = pageSize;
     }
 
-    public Guid AccountId { get; }
-    public DateOnly FromDate { get; }
-    public DateOnly ToDate { get; }
+    public int Year { get; }
+    public int Month { get; }
     public string? Search { get; }
     public int Page { get; }
     public int PageSize { get; }
