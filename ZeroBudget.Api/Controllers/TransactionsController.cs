@@ -43,7 +43,8 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
                 request.Date,
                 request.Description,
                 request.IsConsolidated,
-                request.Position),
+                request.Position,
+                request.Id),
             ct);
         return CreatedAtAction(nameof(GetAll), new { year = result.Transaction.Date.Year, month = result.Transaction.Date.Month }, result);
     }
@@ -106,6 +107,7 @@ public class TransactionsController(IMediator mediator) : ApiControllerBase
 
 public class CreateTransactionRequest
 {
+    public Guid? Id { get; set; }
     public decimal Amount { get; set; }
     public DateOnly Date { get; set; }
     public string? Description { get; set; }

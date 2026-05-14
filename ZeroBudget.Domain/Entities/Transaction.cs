@@ -12,16 +12,18 @@ public class Transaction
 
     private Transaction() { }
 
-    public static Transaction Create(decimal amount, DateOnly date, string? description, bool isConsolidated, double position)
+    public static Transaction Create(decimal amount, DateOnly date, string? description, bool isConsolidated, double position, Guid? id = null)
     {
         if (amount == 0)
             throw new ArgumentException("Amount cannot be zero.", nameof(amount));
         if (double.IsNaN(position) || double.IsInfinity(position))
             throw new ArgumentException("Position must be a finite number.", nameof(position));
+        if (id.HasValue && id.Value == Guid.Empty)
+            throw new ArgumentException("Id cannot be an empty Guid.", nameof(id));
 
         return new Transaction
         {
-            Id = Guid.NewGuid(),
+            Id = id ?? Guid.NewGuid(),
             Amount = amount,
             Date = date,
             Description = description?.Trim(),

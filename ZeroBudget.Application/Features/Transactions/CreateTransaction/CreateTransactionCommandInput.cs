@@ -5,13 +5,14 @@ namespace ZeroBudget.Application.Features.Transactions.CreateTransaction;
 
 public class CreateTransactionCommandInput : IRequest<CreateTransactionCommandOutput>
 {
-    public CreateTransactionCommandInput(decimal amount, DateOnly date, string? description, bool isConsolidated, double? position)
+    public CreateTransactionCommandInput(decimal amount, DateOnly date, string? description, bool isConsolidated, double? position, Guid? id = null)
     {
         Amount = amount;
         Date = date;
         Description = description;
         IsConsolidated = isConsolidated;
         Position = position;
+        Id = id;
     }
 
     public decimal Amount { get; }
@@ -19,6 +20,7 @@ public class CreateTransactionCommandInput : IRequest<CreateTransactionCommandOu
     public string? Description { get; }
     public bool IsConsolidated { get; }
     public double? Position { get; }
+    public Guid? Id { get; }
 }
 
 public class CreateTransactionCommandValidator : AbstractValidator<CreateTransactionCommandInput>
@@ -32,5 +34,9 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
             .Must(p => !double.IsNaN(p) && !double.IsInfinity(p))
             .When(x => x.Position.HasValue)
             .WithMessage("Position must be a finite number.");
+        RuleFor(x => x.Id!.Value)
+            .NotEqual(Guid.Empty)
+            .When(x => x.Id.HasValue)
+            .WithMessage("Id cannot be an empty Guid.");
     }
 }

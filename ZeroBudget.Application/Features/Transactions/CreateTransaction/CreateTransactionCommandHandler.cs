@@ -24,7 +24,7 @@ public class CreateTransactionCommandHandler(
             position = (maxPosition ?? 0.0) + PositionStep;
         }
 
-        var transaction = Transaction.Create(command.Amount, command.Date, command.Description, command.IsConsolidated, position);
+        var transaction = Transaction.Create(command.Amount, command.Date, command.Description, command.IsConsolidated, position, command.Id);
 
         await transactionRepository.AddAsync(transaction, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
